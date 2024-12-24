@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime
 
@@ -8,13 +9,11 @@ tasks = []
 
 @app.route('/')
 def index():
-    # Рендер главной страницы
     return render_template('index.html')
 
 @app.route('/tasks', methods=['GET', 'POST'])
 def manage_tasks():
     if request.method == 'POST':
-        # Создание новой задачи
         data = request.json
         task = {
             "id": len(tasks) + 1,
@@ -25,7 +24,6 @@ def manage_tasks():
         }
         tasks.append(task)
         return jsonify(task), 201
-    # Получение списка задач
     return jsonify(tasks), 200
 
 @app.route('/tasks/<int:task_id>/stop', methods=['POST'])
@@ -38,4 +36,6 @@ def stop_task(task_id):
     return jsonify({"error": "Task not found"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Слушаем порт из переменной среды PORT (Render использует её)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
